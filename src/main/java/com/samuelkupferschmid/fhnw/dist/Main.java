@@ -1,3 +1,5 @@
+package com.samuelkupferschmid.fhnw.dist;
+
 /**
  * Created by samue on 18.10.2016.
  */
