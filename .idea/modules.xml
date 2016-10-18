@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/nbsf.iml" filepath="$PROJECT_DIR$/nbsf.iml" />
+      <module fileurl="file://$PROJECT_DIR$/naive-bayes-spam-filter.iml" filepath="$PROJECT_DIR$/naive-bayes-spam-filter.iml" />
     </modules>
   </component>
 </project>
