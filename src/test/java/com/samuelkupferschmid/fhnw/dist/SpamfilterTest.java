@@ -32,4 +32,52 @@ public class SpamfilterTest {
         assertTrue(f.spam.containsKey("free"));
     }
 
+    @Test
+    public void TestFeedCountContents() {
+        Spamfilter f = new Spamfilter();
+        assertEquals(0,f.spamFeedings);
+
+        f.feed("viagra for free",true);
+
+        assertEquals(1,f.spamFeedings);
+    }
+
+    @Test
+    public void TestSpamProbability() {
+        Spamfilter f = new Spamfilter();
+
+        String spam = "viagra for free";
+        f.feed(spam,true);
+        f.feed("hello dear sir",false);
+        f.train();
+
+        assertEquals(1,f.spamProbability(spam),.1);
+    }
+
+    @Test
+    public void TestSpamProbabilityWithHam() {
+        Spamfilter f = new Spamfilter();
+
+        String spam = "viagra for free";
+        String ham = "hello dear sir";
+
+        f.feed(spam,true);
+        f.feed(ham,false);
+        f.train();
+
+        assertEquals(0,f.spamProbability(ham),.1);
+    }
+
+    @Test
+    public void TestNormalizationExpand() {
+        Spamfilter f = new Spamfilter();
+        f.feed("sex",true);
+        f.feed("work",false);
+
+        f.train();
+
+        assertTrue(f.spam.containsKey("work"));
+        assertEquals(0,f.ham.get("sex"),.1);
+    }
+
 }
