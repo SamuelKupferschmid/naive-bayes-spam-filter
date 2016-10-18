@@ -8,8 +8,13 @@ import static org.junit.Assert.*;
 public class SpamfilterTest {
 
     @Test
-    public void Test(){
-        assertFalse(false);
+    public void TestSimpleSpam() {
+        String spamContent = "viagra for free";
+        Spamfilter f = new Spamfilter();
+
+        f.feed(spamContent,true);
+        f.train();
+        assertTrue(f.isSpam(spamContent));
     }
 
 }
