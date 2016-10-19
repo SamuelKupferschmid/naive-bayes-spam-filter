@@ -13,71 +13,57 @@ public class SpamfilterTest {
     @Test
     public void TestSimpleSpam() {
         String spamContent = "viagra for free";
-        Spamfilter f = new Spamfilter();
-
-        f.feed(spamContent,true);
-        f.train();
+        Spamfilter f = new Spamfilter(new String[]{spamContent},new String[]{});
         assertTrue(f.isSpam(spamContent));
     }
 
     @Test
-    public void TestFeedAddWords() {
-        Spamfilter f = new Spamfilter();
-        assertEquals(0,f.spam.size());
-
-        f.feed("viagra for free",true);
-
-        assertTrue(f.spam.containsKey("viagra"));
-        assertTrue(f.spam.containsKey("for"));
-        assertTrue(f.spam.containsKey("free"));
-    }
-
-    @Test
     public void TestFeedCountContents() {
-        Spamfilter f = new Spamfilter();
-        assertEquals(0,f.spamFeedings);
 
-        f.feed("viagra for free",true);
+        Spamfilter f = new Spamfilter(new String[]{"viagra for free"},new String[]{});
 
         assertEquals(1,f.spamFeedings);
     }
 
     @Test
-    public void TestSpamProbability() {
-        Spamfilter f = new Spamfilter();
-
-        String spam = "viagra for free";
-        f.feed(spam,true);
-        f.feed("hello dear sir",false);
-        f.train();
-
-        assertEquals(1,f.spamProbability(spam),.1);
-    }
-
-    @Test
-    public void TestSpamProbabilityWithHam() {
-        Spamfilter f = new Spamfilter();
-
+    public void TestSpam() {
         String spam = "viagra for free";
         String ham = "hello dear sir";
 
-        f.feed(spam,true);
-        f.feed(ham,false);
-        f.train();
+        Spamfilter f = new Spamfilter(new String[]{spam},new String[]{ham});
 
-        assertEquals(0,f.spamProbability(ham),.1);
+        assertTrue(f.isSpam(spam));
+    }
+
+    @Test
+    public void TestHam() {
+        String spam = "viagra for free";
+        String ham = "hello dear sir";
+
+        Spamfilter f = new Spamfilter(new String[]{spam},new String[]{ham});
+
+        assertTrue(f.isSpam(spam));
+
+        assertFalse(f.isSpam(ham));
     }
 
     @Test
     public void TestNormalizationExpand() {
-        Spamfilter f = new Spamfilter();
-        f.feed("sex",true);
-        f.feed("work",false);
 
-        f.train();
+        Spamfilter f = new Spamfilter(new String[]{"sex"},new String[]{"dear"});
 
-        assertTrue(f.spam.containsKey("work"));
+        assertTrue(f.spam.containsKey("dear"));
         assertEquals(0,f.ham.get("sex"),.1);
+    }
+
+    @Test
+    public void TestThresshold() {
+        Spamfilter f = new Spamfilter(new String[]{"sex"},new String[]{"dear"});
+
+        //default
+        assertEquals(0.5,f.getSpamThreshhold(),0);
+        f.setSpamThreshhold(0.2);
+        assertEquals(0.2,f.getSpamThreshhold(),0);
     }
 
 }
