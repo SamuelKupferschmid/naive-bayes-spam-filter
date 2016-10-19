@@ -14,32 +14,40 @@ public class Spamfilter {
     public int spamFeedings = 0;
     public int hamFeedings = 0;
     private final static double epsilon = 0.01;
+    private double spamThreshhold = 0.5;
 
-    public Spamfilter() {
+    public Spamfilter(String[] trainingSpam, String[] trainingHam) {
         spam = new HashMap<String, Double>();
         ham = new HashMap<String, Double>();
+
+        for(String spam : trainingSpam){
+            feed(spam,true);
+        }
+
+        for(String ham : trainingHam){
+            feed(ham,false);
+        }
+
+        spamFeedings = trainingSpam.length;
+        hamFeedings = trainingHam.length;
+
+        normalize(spam,spamFeedings,ham);
+        normalize(ham,hamFeedings,spam);
     }
 
-    public void feed(String content, boolean isSpam) {
+    private void feed(String content, boolean isSpam) {
         Map<String,Double> map = isSpam ? spam : ham;
 
         for (String word :content.split(" ")) {
             Double val = map.containsKey(word) ? map.get(word) : 0;
             map.put(word,++val);
         }
-
-        if(isSpam)
-            spamFeedings++;
-        else
-            hamFeedings++;
-    }
-
-    public void train() {
-        normalize(spam,spamFeedings,ham);
-        normalize(ham,hamFeedings,spam);
     }
 
     private void normalize(Map<String,Double> map, int size, Map<String, Double> otherMap) {
+        if(size == 0)
+            size = 1;
+
         for(String word : map.keySet()) {
             map.put(word,map.get(word) / size);
 
@@ -49,11 +57,6 @@ public class Spamfilter {
     }
 
     public boolean isSpam(String content) {
-        return true;
-    }
-
-    public double spamProbability(String content) {
-
         String[] words = content.split(" ");
 
         Double ph = 1.;
@@ -67,7 +70,17 @@ public class Spamfilter {
                 ph *= ham.get(word);
         }
 
+        ps *= spamThreshhold;
+        ph *= 1 - spamThreshhold;
 
-        return ps / (ph + ps);
+        return (ps / (ph + ps)) > 0.5;
+    }
+
+    public double getSpamThreshhold() {
+        return spamThreshhold;
+    }
+
+    public void setSpamThreshhold(double spamThreshhold) {
+        this.spamThreshhold = spamThreshhold;
     }
 }
