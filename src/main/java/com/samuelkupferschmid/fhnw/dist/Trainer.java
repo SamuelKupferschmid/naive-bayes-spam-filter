@@ -1,21 +1,30 @@
 package com.samuelkupferschmid.fhnw.dist;
 
-public class Trainer {
+class Trainer {
     private Spamfilter spamfilter;
+    private String[] validationSpam;
+    private String[] validationHam;
 
-    public Trainer(Spamfilter spamfilter) {
+    Trainer(Spamfilter spamfilter, String[] validationSpam, String[] validationHam) {
         this.spamfilter = spamfilter;
+        this.validationSpam = validationSpam;
+        this.validationHam = validationHam;
     }
 
-    public Performance train(String[] validationSpam, String[] validationHam, String[] testSpam, String[] testHam, int iterations) {
+    public Performance train(String[] testSpam, String[] testHam, int iterations) {
         return null;
     }
 
-    public Performance calculatePerformance(double spamThreshold) {
-     return null;
+    Performance calculatePerformance(double spamThreshold) {
+        double prevThreshold = spamfilter.getSpamThreshhold();
+        spamfilter.setSpamThreshhold(spamThreshold);
+
+
+        spamfilter.setSpamThreshhold(prevThreshold);
+        return null;
     }
 
-    public Performance MaximizeFScore(int samples) {
+    Performance MaximizeFScore(int samples) {
         return null;
     }
 
