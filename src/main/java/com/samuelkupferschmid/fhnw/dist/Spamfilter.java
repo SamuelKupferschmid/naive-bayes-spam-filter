@@ -13,7 +13,7 @@ public class Spamfilter {
     Map<String,Double> ham;
     public int spamFeedings = 0;
     public int hamFeedings = 0;
-    private final static double epsilon = 0.01;
+    private final static double epsilon = 0.5;
     private double spamThreshhold = 0.5;
 
     public Spamfilter(String[] trainingSpam, String[] trainingHam) {
@@ -38,7 +38,7 @@ public class Spamfilter {
     private void feed(String content, boolean isSpam) {
         Map<String,Double> map = isSpam ? spam : ham;
 
-        for (String word :content.split(" ")) {
+        for (String word :content.split("\\s+")) {
             Double val = map.containsKey(word) ? map.get(word) : 0;
             map.put(word,++val);
         }
@@ -57,7 +57,7 @@ public class Spamfilter {
     }
 
     public boolean isSpam(String content) {
-        String[] words = content.split(" ");
+        String[] words = content.split("\\s+");
 
         Double ph = 1.;
         Double ps = 1.;
