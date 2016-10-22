@@ -1,3 +1,5 @@
 language: java
 
-script: mvn test cobertura:cobertura coveralls:report
+script: mvn cobertura:cobertura coveralls:report
+after_success:
+  - mvn clean cobertura:cobertura coveralls:report
