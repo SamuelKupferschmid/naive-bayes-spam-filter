@@ -36,7 +36,9 @@ public class TrainerTest {
     @Test
     public void TrainIteratesNtimes(){
         trainer.train(new String[0],new String[0],3);
-        verify(filterMock,times(3)).getSpamThreshhold();
+
+        //after validation the performance for test data will be calculated -> 3*validation + 1*test
+        verify(filterMock,times(4)).getSpamThreshhold();
     }
 
     @Test
@@ -48,11 +50,13 @@ public class TrainerTest {
 
         assertEquals(0.5, p.getPrecision(),0);
 
-        when(filterMock.isSpam("tn")).thenReturn(false);
+        when(filterMock.isSpam("tp")).thenReturn(true);
+        when(filterMock.isSpam("fn")).thenReturn(false);
+        when(filterMock.isSpam("fn")).thenReturn(false);
         when(filterMock.isSpam("fn")).thenReturn(false);
 
-        p = trainer.calculatePerformance(new String[]{"fn"}, new String[]{"tn"},0.5);
+        p = trainer.calculatePerformance(new String[]{"tp","fn","fn","fn"}, new String[]{},0.5);
 
-        assertEquals(0, p.getRecall(),0);
+        assertEquals(0.25, p.getRecall(),0);
     }
 }

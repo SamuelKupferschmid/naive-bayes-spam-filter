@@ -15,14 +15,19 @@ class Trainer {
         iterations++;
 
         Performance max = null;
-        for(int i = 1; i < iterations; i++) {
-            Performance perf = calculatePerformance(testSpam,testHam, i / iterations);
+        double bestThreshold = 0;
+        for(double i = 1; i < iterations; i++) {
+            Performance perf = calculatePerformance(validationSpam,validationHam, i / iterations);
 
-            if(max == null || max.getF1Score() < perf.getF1Score())
+            if(max == null || max.getF1Score() < perf.getF1Score()) {
                 max = perf;
+                bestThreshold = i / iterations;
+            }
         }
 
-        return max;
+        getSpamfilter().setSpamThreshhold(bestThreshold);
+
+        return calculatePerformance(testSpam,testHam,bestThreshold);
     }
 
     public Performance calculatePerformance(String[] spam, String[] ham, double spamThreshold) {
@@ -33,7 +38,6 @@ class Trainer {
 
         int tp = 0;
         int fp = 0;
-        int tn = 0;
         int fn = 0;
 
         for(String s : spam) {
@@ -46,12 +50,10 @@ class Trainer {
         for(String s : ham) {
             if(spamfilter.isSpam(s))
                 fp++;
-            else
-                tn++;
         }
 
         p.setPrecision((double) tp / (tp + fp));
-        p.setRecall((double) tp / (fp + fn));
+        p.setRecall((double) tp / (tp + fn));
 
         spamfilter.setSpamThreshhold(prevThreshold);
         return p;
