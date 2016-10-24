@@ -66,4 +66,13 @@ public class SpamfilterTest {
         assertEquals(0.2,f.getSpamThreshhold(),0);
     }
 
+    @Test
+    public void TestMixedHam() {
+        Spamfilter f = new Spamfilter(
+                new String[]{"there is spam","always spam", "one more","buy spam for free"},
+                new String[]{"dear guest", "always good", "this is no spam but ham", "ham is super", "ham ham"});
+
+        assertFalse(f.isSpam("this is ham not spam. so good !"));
+    }
+
 }

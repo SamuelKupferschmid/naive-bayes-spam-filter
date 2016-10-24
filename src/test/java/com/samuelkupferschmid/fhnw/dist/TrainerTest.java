@@ -28,8 +28,35 @@ public class TrainerTest {
     @Test
     public void TestCalcPerfTemporarilyThreshold()  {
         when(filterMock.getSpamThreshhold()).thenReturn(0.5);
-        trainer.calculatePerformance(0.4);
+        trainer.calculatePerformance(new String[0],new String[0],0.4);
         verify(filterMock).setSpamThreshhold(0.4);
         verify(filterMock).setSpamThreshhold(0.5);
+    }
+
+    @Test
+    public void TrainIteratesNtimes(){
+        trainer.train(new String[0],new String[0],3);
+
+        //after validation the performance for test data will be calculated -> 3*validation + 1*test
+        verify(filterMock,times(4)).getSpamThreshhold();
+    }
+
+    @Test
+    public void TestCalcPositivesNegatives() {
+        when(filterMock.isSpam("tp")).thenReturn(true);
+        when(filterMock.isSpam("fp")).thenReturn(true);
+
+        Performance p = trainer.calculatePerformance(new String[]{"tp"}, new String[]{"fp"},0.5);
+
+        assertEquals(0.5, p.getPrecision(),0);
+
+        when(filterMock.isSpam("tp")).thenReturn(true);
+        when(filterMock.isSpam("fn")).thenReturn(false);
+        when(filterMock.isSpam("fn")).thenReturn(false);
+        when(filterMock.isSpam("fn")).thenReturn(false);
+
+        p = trainer.calculatePerformance(new String[]{"tp","fn","fn","fn"}, new String[]{},0.5);
+
+        assertEquals(0.25, p.getRecall(),0);
     }
 }
