@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
@@ -27,16 +26,19 @@ public class Main {
         Trainer trainer = new Trainer(spamfilter, spamValidation, hamValidation);
 
         System.out.println("Find best Threshold...");
-        Performance perf = trainer.train(spamTest,hamTest,4);
+        Performance perf = trainer.train(spamTest,hamTest,12);
 
         System.out.println("Threshold: " + spamfilter.getSpamThreshhold());
+        System.out.println("\nPerformance:");
         System.out.println("Precision: " + perf.getPrecision());
         System.out.println("Recall: " + perf.getRecall());
         System.out.println("F1 Score: " + perf.getF1Score());
 
-        System.out.println("Check your Mail...");
+        System.out.println("\nCheck your Mail...");
 
         String content = new String(Files.readAllBytes(Paths.get(filename)));
+
+        System.out.println("Spam probability: " + spamfilter.isSpamProbability(content));
 
         if(spamfilter.isSpam(content))
             System.out.println("This mail is probably spam!");
