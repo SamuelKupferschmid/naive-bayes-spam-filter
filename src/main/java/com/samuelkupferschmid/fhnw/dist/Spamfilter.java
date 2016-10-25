@@ -12,8 +12,8 @@ public class Spamfilter {
     private double spamThreshhold = 0.5;
 
     public Spamfilter(String[] trainingSpam, String[] trainingHam) {
-        spam = new HashMap<String, Double>();
-        ham = new HashMap<String, Double>();
+        spam = new HashMap<>();
+        ham = new HashMap<>();
 
         for(String spam : trainingSpam){
             feed(spam,true);
@@ -26,27 +26,18 @@ public class Spamfilter {
         spamFeedings = trainingSpam.length;
         hamFeedings = trainingHam.length;
 
-        cutRareWords(spam,1000);
-        cutRareWords(ham,1000);
+        int min = Math.min(spamFeedings,hamFeedings);
 
-        normalize(spam,spamFeedings,ham);
-        normalize(ham,hamFeedings,spam);
-    }
-
-    private void cutRareWords(Map<String,Double> data, int targetSize) {
-        int pos = data.size() - targetSize;
-
-        if(pos < 0)
-            return;
-
-        Double threshold = data.values().stream().sorted(Double::compare).skip(pos).findFirst().get();
-
-        Object[] keys = data.keySet().toArray();
-        for(Object k : keys) {
-            if(data.get(k) < threshold) {
-                data.remove(k);
-            }
+        if(min != 0) {
+            spamFeedings /= min;
+            hamFeedings /= min;
         }
+        
+        fillMap(spam,ham);
+        fillMap(ham,spam);
+
+        normalize(spam,spamFeedings);
+        normalize(ham,hamFeedings);
     }
 
     private void feed(String content, boolean isSpam) {
@@ -58,36 +49,38 @@ public class Spamfilter {
         }
     }
 
-    private void normalize(Map<String,Double> map, int size, Map<String, Double> otherMap) {
+    private void normalize(Map<String,Double> map, int size) {
         if(size == 0)
             size = 1;
 
         for(String word : map.keySet()) {
             map.put(word,map.get(word) / size);
-
-            if(!otherMap.containsKey(word))
-                otherMap.put(word,epsilon);
         }
     }
 
-    public boolean isSpam(String content) {
+    private void fillMap(Map<String,Double> map, Map<String, Double> otherMap) {
+
+        for(String word : otherMap.keySet()) {
+            if(!map.containsKey(word))
+                map.put(word,epsilon);
+        }
+    }
+
+    public double isSpamProbability(String content) {
         String[] words = content.split("\\s+");
 
-        Double ph = 1.;
-        Double ps = 1.;
+        double result = 1d;
 
         for(String word : words) {
             if(spam.containsKey(word))
-                ps *= spam.get(word);
-
-            if(ham.containsKey(word))
-                ph *= ham.get(word);
+                result *= ham.get(word) / spam.get(word);
         }
 
-        ps *= spamThreshhold;
-        ph *= 1 - spamThreshhold;
+        return 1d / (1d + result);
+    }
 
-        return (ps / (ph + ps)) > 0.5;
+    public boolean isSpam(String content) {
+        return isSpamProbability(content) > spamThreshhold;
     }
 
     public double getSpamThreshhold() {
